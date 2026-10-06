@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Simulasi Interaktif Queue</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 15px;
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1e293b;
+            background: linear-gradient(135deg, #ecfeff, #dbeafe);
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            color: #0369a1;
+        }
+
+        .header p {
+            margin: 0;
+            color: #475569;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(15, 23, 42, 0.10);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #0f172a;
+        }
+
+        .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: end;
+            gap: 12px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            min-width: 190px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #334155;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #0284c7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 11px 17px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.96);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            color: white;
+            background: #0284c7;
+        }
+
+        .btn-success {
+            color: white;
+            background: #16a34a;
+        }
+
+        .btn-danger {
+            color: white;
+            background: #dc2626;
+        }
+
+        .btn-warning {
+            color: white;
+            background: #f59e0b;
+        }
+
+        .btn-secondary {
+            color: white;
+            background: #64748b;
+        }
+
+        .button-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .status {
+            margin-top: 18px;
+            padding: 13px 15px;
+            border-left: 5px solid #64748b;
+            border-radius: 8px;
+            font-weight: bold;
+            background: #f1f5f9;
+        }
+
+        .status.success {
+            color: #166534;
+            background: #dcfce7;
+            border-left-color: #16a34a;
+        }
+
+        .status.warning {
+            color: #92400e;
+            background: #fef3c7;
+            border-left-color: #f59e0b;
+        }
+
+        .status.error {
+            color: #991b1b;
+            background: #fee2e2;
+            border-left-color: #dc2626;
+        }
+
+        .status.info {
+            color: #075985;
+            background: #e0f2fe;
+            border-left-color: #0284c7;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1.35fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .queue-area {
+            min-height: 360px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            overflow-x: auto;
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+        }
+
+        .queue-container {
+            min-width: 650px;
+        }
+
+        .queue-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 0 8px;
+            color: #475569;
+            font-weight: bold;
+        }
+
+        .queue {
+            display: flex;
+            align-items: stretch;
+            gap: 9px;
+            min-height: 85px;
+            padding: 12px;
+            border: 5px solid #334155;
+            border-radius: 12px;
+            background: #e2e8f0;
+        }
+
+        .queue-slot {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 95px;
+            min-height: 55px;
+            padding: 8px;
+            text-align: center;
+            color: #94a3b8;
+            border: 2px dashed #94a3b8;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .queue-slot.filled {
+            color: white;
+            font-weight: bold;
+            border: 2px solid #0369a1;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            animation: masuk 0.3s ease;
+        }
+
+        .queue-slot.front-item {
+            border-color: #166534;
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.20);
+        }
+
+        .queue-slot.rear-item {
+            border-color: #c2410c;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.20);
+        }
+
+        .queue-slot.front-rear-item {
+            border-color: #7c3aed;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.20);
+        }
+
+        .slot-index {
+            position: absolute;
+            top: -26px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #64748b;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .position-label {
+            position: absolute;
+            bottom: -29px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .position-front {
+            color: #15803d;
+        }
+
+        .position-rear {
+            color: #c2410c;
+        }
+
+        .position-both {
+            color: #7c3aed;
+        }
+
+        .empty-slot {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .queue-direction {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 22px;
+            color: #475569;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .queue-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .info-box {
+            padding: 13px 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-top: 5px;
+            color: #0369a1;
+            font-size: 20px;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 18px;
+            color: #475569;
+            font-size: 13px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+        }
+
+        .legend-front {
+            background: #16a34a;
+        }
+
+        .legend-data {
+            background: #0284c7;
+        }
+
+        .legend-rear {
+            background: #f97316;
+        }
+
+        .legend-empty {
+            background: #cbd5e1;
+        }
+
+        .table-wrapper {
+            max-height: 430px;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 720px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 11px 10px;
+            text-align: left;
+            vertical-align: top;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            color: white;
+            background: #0369a1;
+        }
+
+        tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .operation {
+            font-weight: bold;
+        }
+
+        .operation.enqueue {
+            color: #15803d;
+        }
+
+        .operation.dequeue {
+            color: #dc2626;
+        }
+
+        .operation.front {
+            color: #d97706;
+        }
+
+        .operation.rear {
+            color: #c2410c;
+        }
+
+        .operation.clear {
+            color: #7c3aed;
+        }
+
+        .empty-history {
+            padding: 25px;
+            color: #64748b;
+            text-align: center;
+        }
+
+        @keyframes masuk {
+            from {
+                opacity: 0;
+                transform: translateX(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 18px 10px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .queue-container {
+                min-width: 560px;
+            }
+
+            .queue-slot {
+                min-width: 80px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Simulasi Interaktif Queue</h1>
+            <p>Prinsip kerja: <strong>FIFO</strong> — First In, First Out</p>
+        </div>
+
+        <div class="card">
+            <h2>Kontrol Antrian</h2>
+
+            <div class="control-group">
+                <div class="input-group">
+                    <label for="dataInput">
+                        Data yang akan dimasukkan
+                    </label>
+
+                    <input
+                        type="text"
+                        id="dataInput"
+                        placeholder="Contoh: Pelanggan 1, A, 10"
+                    >
+                </div>
+
+                <div class="input-group">
+                    <label for="capacityInput">
+                        Kapasitas Antrian
+                    </label>
+
+                    <input
+                        type="number"
+                        id="capacityInput"
+                        value="6"
+                        min="1"
+                        max="12"
+                    >
+                </div>
+
+                <button
+                    class="btn-primary"
+                    id="setCapacityButton"
+                >
+                    Terapkan Kapasitas
+                </button>
+            </div>
+
+            <div class="button-area">
+                <button
+                    class="btn-success"
+                    id="enqueueButton"
+                >
+                    ENQUEUE
+                </button>
+
+                <button
+                    class="btn-danger"
+                    id="dequeueButton"
+                >
+                    DEQUEUE
+                </button>
+
+                <button
+                    class="btn-warning"
+                    id="frontButton"
+                >
+                    FRONT
+                </button>
+
+                <button
+                    class="btn-primary"
+                    id="rearButton"
+                >
+                    REAR
+                </button>
+
+                <button
+                    class="btn-secondary"
+                    id="clearButton"
+                >
+                    CLEAR
+                </button>
+            </div>
+
+            <div
+                class="status info"
+                id="statusMessage"
+            >
+                Antrian siap digunakan.
+            </div>
+        </div>
+
+        <div class="layout">
+            <div class="card">
+                <h2>Visualisasi Antrian</h2>
+
+                <div class="queue-area">
+                    <div class="queue-container">
+                        <div class="queue-labels">
+                            <span>FRONT</span>
+                            <span>REAR</span>
+                        </div>
+
+                        <div
+                            class="queue"
+                            id="queueVisual"
+                        ></div>
+
+                        <div class="queue-direction">
+                            <span>← DEQUEUE</span>
+                            <span>ENQUEUE →</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="queue-info">
+                    <div class="info-box">
+                        Kapasitas
+                        <strong id="capacityInfo">6</strong>
+                    </div>
+
+                    <div class="info-box">
+                        Jumlah Data
+                        <strong id="sizeInfo">0</strong>
+                    </div>
+
+                    <div class="info-box">
+                        Indeks FRONT
+                        <strong id="frontInfo">-1</strong>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-color legend-front"></span>
+                        FRONT
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-color legend-data"></span>
+                        Data Antrian
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-color legend-rear"></span>
+                        REAR
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-color legend-empty"></span>
+                        Slot Kosong
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Riwayat Operasi</h2>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Operasi</th>
+                                <th>Data</th>
+                                <th>Kondisi Antrian</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="historyBody">
+                            <tr>
+                                <td
+                                    colspan="5"
+                                    class="empty-history"
+                                >
+                                    Belum ada operasi.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let queue = [];
+        let capacity = 6;
+        let operationNumber = 0;
+
+        const dataInput = document.getElementById("dataInput");
+        const capacityInput = document.getElementById("capacityInput");
+
+        const enqueueButton = document.getElementById("enqueueButton");
+        const dequeueButton = document.getElementById("dequeueButton");
+        const frontButton = document.getElementById("frontButton");
+        const rearButton = document.getElementById("rearButton");
+        const clearButton = document.getElementById("clearButton");
+        const setCapacityButton = document.getElementById("setCapacityButton");
+
+        const queueVisual = document.getElementById("queueVisual");
+        const historyBody = document.getElementById("historyBody");
+        const statusMessage = document.getElementById("statusMessage");
+
+        const capacityInfo = document.getElementById("capacityInfo");
+        const sizeInfo = document.getElementById("sizeInfo");
+        const frontInfo = document.getElementById("frontInfo");
+
+        function setStatus(message, type = "info") {
+            statusMessage.textContent = message;
+            statusMessage.className = `status ${type}`;
+        }
+
+        function getQueueDescription() {
+            if (queue.length === 0) {
+                return "Kosong";
+            }
+
+            return queue.join(" → ");
+        }
+
+        function renderQueue() {
+            queueVisual.innerHTML = "";
+
+            for (let index = 0; index < capacity; index++) {
+                const slot = document.createElement("div");
+                slot.classList.add("queue-slot");
+
+                const indexLabel = document.createElement("span");
+                indexLabel.classList.add("slot-index");
+                indexLabel.textContent = `Index ${index}`;
+                slot.appendChild(indexLabel);
+
+                if (index < queue.length) {
+                    slot.classList.add("filled");
+
+                    const dataText = document.createElement("span");
+                    dataText.textContent = queue[index];
+                    slot.appendChild(dataText);
+
+                    const isFront = index === 0;
+                    const isRear = index === queue.length - 1;
+
+                    if (isFront && isRear) {
+                        slot.classList.add("front-rear-item");
+
+                        const positionLabel = document.createElement("span");
+                        positionLabel.classList.add(
+                            "position-label",
+                            "position-both"
+                        );
+                        positionLabel.textContent = "FRONT / REAR";
+                        slot.appendChild(positionLabel);
+                    } else if (isFront) {
+                        slot.classList.add("front-item");
+
+                        const positionLabel = document.createElement("span");
+                        positionLabel.classList.add(
+                            "position-label",
+                            "position-front"
+                        );
+                        positionLabel.textContent = "FRONT";
+                        slot.appendChild(positionLabel);
+                    } else if (isRear) {
+                        slot.classList.add("rear-item");
+
+                        const positionLabel = document.createElement("span");
+                        positionLabel.classList.add(
+                            "position-label",
+                            "position-rear"
+                        );
+                        positionLabel.textContent = "REAR";
+                        slot.appendChild(positionLabel);
+                    }
+                } else {
+                    const emptyText = document.createElement("span");
+                    emptyText.classList.add("empty-slot");
+                    emptyText.textContent = "Kosong";
+                    slot.appendChild(emptyText);
+                }
+
+                queueVisual.appendChild(slot);
+            }
+
+            capacityInfo.textContent = capacity;
+            sizeInfo.textContent = queue.length;
+            frontInfo.textContent = queue.length === 0 ? "-1" : "0";
+        }
+
+        function addHistory(
+            operation,
+            value,
+            description,
+            operationClass
+        ) {
+            operationNumber++;
+
+            const emptyRow = historyBody.querySelector(".empty-history");
+
+            if (emptyRow) {
+                emptyRow.parentElement.remove();
+            }
+
+            const row = document.createElement("tr");
+
+            const numberCell = document.createElement("td");
+            numberCell.textContent = operationNumber;
+
+            const operationCell = document.createElement("td");
+            operationCell.textContent = operation;
+            operationCell.classList.add(
+                "operation",
+                operationClass
+            );
+
+            const valueCell = document.createElement("td");
+            valueCell.textContent = value || "-";
+
+            const queueCell = document.createElement("td");
+            queueCell.textContent = getQueueDescription();
+
+            const descriptionCell = document.createElement("td");
+            descriptionCell.textContent = description;
+
+            row.appendChild(numberCell);
+            row.appendChild(operationCell);
+            row.appendChild(valueCell);
+            row.appendChild(queueCell);
+            row.appendChild(descriptionCell);
+
+            historyBody.prepend(row);
+        }
+
+        function enqueueData() {
+            const value = dataInput.value.trim();
+
+            if (value === "") {
+                setStatus(
+                    "Masukkan data terlebih dahulu sebelum melakukan ENQUEUE.",
+                    "warning"
+                );
+
+                dataInput.focus();
+                return;
+            }
+
+            if (queue.length >= capacity) {
+                setStatus(
+                    `Queue Overflow: antrian sudah penuh. Kapasitas maksimum adalah ${capacity}.`,
+                    "error"
+                );
+
+                addHistory(
+                    "ENQUEUE",
+                    value,
+                    "Gagal — Queue Overflow",
+                    "enqueue"
+                );
+
+                return;
+            }
+
+            queue.push(value);
+            dataInput.value = "";
+
+            renderQueue();
+
+            setStatus(
+                `ENQUEUE berhasil. Data "${value}" masuk ke bagian REAR.`,
+                "success"
+            );
+
+            addHistory(
+                "ENQUEUE",
+                value,
+                "Berhasil — data masuk ke REAR",
+                "enqueue"
+            );
+
+            dataInput.focus();
+        }
+
+        function dequeueData() {
+            if (queue.length === 0) {
+                setStatus(
+                    "Queue Underflow: tidak ada data yang dapat dikeluarkan.",
+                    "error"
+                );
+
+                addHistory(
+                    "DEQUEUE",
+                    "-",
+                    "Gagal — Queue Underflow",
+                    "dequeue"
+                );
+
+                return;
+            }
+
+            const value = queue.shift();
+
+            renderQueue();
+
+            setStatus(
+                `DEQUEUE berhasil. Data "${value}" keluar dari bagian FRONT.`,
+                "success"
+            );
+
+            addHistory(
+                "DEQUEUE",
+                value,
+                "Berhasil — data keluar dari FRONT",
+                "dequeue"
+            );
+        }
+
+        function showFront() {
+            if (queue.length === 0) {
+                setStatus(
+                    "FRONT gagal: antrian sedang kosong.",
+                    "warning"
+                );
+
+                addHistory(
+                    "FRONT",
+                    "-",
+                    "Gagal — antrian kosong",
+                    "front"
+                );
+
+                return;
+            }
+
+            const value = queue[0];
+
+            setStatus(
+                `FRONT: data paling depan adalah "${value}". Data tidak dihapus.`,
+                "warning"
+            );
+
+            addHistory(
+                "FRONT",
+                value,
+                "Berhasil — melihat data paling depan",
+                "front"
+            );
+        }
+
+        function showRear() {
+            if (queue.length === 0) {
+                setStatus(
+                    "REAR gagal: antrian sedang kosong.",
+                    "warning"
+                );
+
+                addHistory(
+                    "REAR",
+                    "-",
+                    "Gagal — antrian kosong",
+                    "rear"
+                );
+
+                return;
+            }
+
+            const value = queue[queue.length - 1];
+
+            setStatus(
+                `REAR: data paling belakang adalah "${value}". Data tidak dihapus.`,
+                "info"
+            );
+
+            addHistory(
+                "REAR",
+                value,
+                "Berhasil — melihat data paling belakang",
+                "rear"
+            );
+        }
+
+        function clearQueue() {
+            if (queue.length === 0) {
+                setStatus(
+                    "Antrian sudah dalam keadaan kosong.",
+                    "warning"
+                );
+
+                addHistory(
+                    "CLEAR",
+                    "-",
+                    "Antrian sudah kosong",
+                    "clear"
+                );
+
+                return;
+            }
+
+            const oldQueue = queue.join(", ");
+            queue = [];
+
+            renderQueue();
+
+            setStatus(
+                `CLEAR berhasil. Data yang dihapus: ${oldQueue}.`,
+                "success"
+            );
+
+            addHistory(
+                "CLEAR",
+                oldQueue,
+                "Berhasil — semua data dihapus",
+                "clear"
+            );
+        }
+
+        function setQueueCapacity() {
+            const newCapacity = Number(capacityInput.value);
+
+            if (!Number.isInteger(newCapacity) || newCapacity < 1) {
+                setStatus(
+                    "Kapasitas harus berupa bilangan bulat minimal 1.",
+                    "warning"
+                );
+
+                capacityInput.value = capacity;
+                return;
+            }
+
+            if (newCapacity < queue.length) {
+                setStatus(
+                    `Kapasitas tidak dapat diubah menjadi ${newCapacity} karena saat ini terdapat ${queue.length} data.`,
+                    "warning"
+                );
+
+                capacityInput.value = capacity;
+                return;
+            }
+
+            capacity = newCapacity;
+
+            renderQueue();
+
+            setStatus(
+                `Kapasitas antrian berhasil diubah menjadi ${capacity}.`,
+                "success"
+            );
+
+            addHistory(
+                "KAPASITAS",
+                capacity,
+                `Kapasitas diubah menjadi ${capacity}`,
+                "clear"
+            );
+        }
+
+        enqueueButton.addEventListener(
+            "click",
+            enqueueData
+        );
+
+        dequeueButton.addEventListener(
+            "click",
+            dequeueData
+        );
+
+        frontButton.addEventListener(
+            "click",
+            showFront
+        );
+
+        rearButton.addEventListener(
+            "click",
+            showRear
+        );
+
+        clearButton.addEventListener(
+            "click",
+            clearQueue
+        );
+
+        setCapacityButton.addEventListener(
+            "click",
+            setQueueCapacity
+        );
+
+        dataInput.addEventListener(
+            "keydown",
+            function(event) {
+                if (event.key === "Enter") {
+                    enqueueData();
+                }
+            }
+        );
+
+        capacityInput.addEventListener(
+            "keydown",
+            function(event) {
+                if (event.key === "Enter") {
+                    setQueueCapacity();
+                }
+            }
+        );
+
+        renderQueue();
+    </script>
+</body>
+</html>
